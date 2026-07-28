@@ -2,6 +2,9 @@
 
 A privacy-preserving decentralized voting application built on Midnight using Compact zero-knowledge smart contracts.
 
+## demo video
+▶️ [Watch Demo](https://github.com/nsampurnaa/midnight-app/issues/22#issue-5000634299)
+
 ## Contract Address
 
 | Network | Contract Address |

@@ -18,7 +18,7 @@
   },
   "scripts": {
     "compact": "npm run compact --workspace=@midnight-ntwrk/voting-contract",
-    "build": "npm run build --workspace=@midnight-ntwrk/voting-contract && npm run build --workspace=@midnight-ntwrk/voting-api && npm run build --workspace=@midnight-ntwrk/voting-cli",
+    "build": "npm run build --workspace=@midnight-ntwrk/voting-contract && npm run build --workspace=@midnight-ntwrk/voting-api && npm run build --workspace=@midnight-ntwrk/voting-ui",
     "deploy": "node --experimental-specifier-resolution=node --loader ts-node/esm voting-cli/src/launcher/preprod.ts"
   },
   "dependencies": {

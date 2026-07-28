@@ -13,6 +13,7 @@ A privacy-preserving decentralized voting application built on Midnight using Co
 
 ```env
 CONTRACT_ADDRESS=<YOUR_DEPLOYED_CONTRACT_ADDRESS>
+server was down so contract couldnt deploy
 ```
 
 ---

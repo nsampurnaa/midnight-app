@@ -1,20 +1,25 @@
 {
-  "name": "@midnight-ntwrk/example-bboard",
+  "name": "@midnight-ntwrk/voting-dapp",
   "version": "0.1.0",
   "author": "IOG",
   "license": "MIT",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=24.11.1"
+    "node": ">=22.0.0"
   },
   "workspaces": {
     "packages": [
-      "bboard-cli",
-      "bboard-ui",
+      "voting-cli",
+      "voting-ui",
       "api",
       "contract"
     ]
+  },
+  "scripts": {
+    "compact": "npm run compact --workspace=@midnight-ntwrk/voting-contract",
+    "build": "npm run build --workspace=@midnight-ntwrk/voting-contract && npm run build --workspace=@midnight-ntwrk/voting-api && npm run build --workspace=@midnight-ntwrk/voting-cli",
+    "deploy": "node --experimental-specifier-resolution=node --loader ts-node/esm voting-cli/src/launcher/preprod.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/dapp-connector-api": "4.0.1",

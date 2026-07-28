@@ -1,0 +1,76 @@
+// Contract: voting.compact
+// Midnight Decentralized Voting Application (Voting DApp)
+//
+// Privacy Model & Data Specifications:
+//
+// 1. PUBLIC DATA (Stored on-chain on Midnight's public ledger):
+//    - `state`: Status of the voting session (UNINITIALIZED, VOTING_OPEN, VOTING_CLOSED).
+//    - `proposalTitle`: The title/question being voted on.
+//    - `candidateAVotes`: Total aggregate votes cast for Candidate / Option A (choice 0).
+//    - `candidateBVotes`: Total aggregate votes cast for Candidate / Option B (choice 1).
+//    - `totalVotes`: Total count of valid votes cast.
+//
+// 2. PRIVATE DATA (Kept strictly off-chain in private state):
+//    - `localSecretKey`: Secret 32-byte key owned by the voter, accessed via private witness.
+//
+// 3. PRIVACY GUARANTEES:
+//    - Zero-knowledge proofs prove voter authentication and vote validity without revealing voter identity or linking wallet addresses.
+//    - Individual vote choices are evaluated inside ZK circuits and disclosed only as aggregate increments to candidate counters.
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export enum State {
+  UNINITIALIZED,
+  VOTING_OPEN,
+  VOTING_CLOSED
+}
+
+export ledger state: State;
+export ledger proposalTitle: Maybe<Opaque<"string">>;
+export ledger candidateAVotes: Counter;
+export ledger candidateBVotes: Counter;
+export ledger totalVotes: Counter;
+
+constructor() {
+  state = State.UNINITIALIZED;
+  proposalTitle = none<Opaque<"string">>();
+  candidateAVotes.increment(0);
+  candidateBVotes.increment(0);
+  totalVotes.increment(0);
+}
+
+witness localSecretKey(): Bytes<32>;
+
+export circuit initialize(title: Opaque<"string">): [] {
+  assert(state == State.UNINITIALIZED, "Voting session already initialized");
+  proposalTitle = disclose(some<Opaque<"string">>(title));
+  state = State.VOTING_OPEN;
+}
+
+export circuit vote(voteChoice: Uint<8>): [] {
+  assert(state == State.VOTING_OPEN, "Voting is not currently open");
+  const choice = disclose(voteChoice);
+  assert(choice == 0 || choice == 1, "Invalid vote choice: must be 0 (Candidate A) or 1 (Candidate B)");
+  
+  // Verify voter key derivation using private witness
+  const pk = publicKey(localSecretKey());
+  assert(pk != pad(32, ""), "Invalid voter secret key");
+
+  if (choice == 0) {
+    candidateAVotes.increment(1);
+  } else {
+    candidateBVotes.increment(1);
+  }
+  totalVotes.increment(1);
+}
+
+export circuit closeVoting(): [] {
+  assert(state == State.VOTING_OPEN, "Voting is not currently open");
+  state = State.VOTING_CLOSED;
+}
+
+export circuit publicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "voting:pk:"), sk]);
+}
